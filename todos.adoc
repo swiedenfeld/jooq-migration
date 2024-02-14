@@ -2,7 +2,7 @@
 
 * [ ] Setup Gradle Project
 ** [x] Setup pre-commit framework
-** [ ] Adding .sdkmanrc
+** [x] Adding .sdkmanrc
 ** [ ] Setup spotless
 * [ ] Setup Postgres Database
 * [ ] Setup Liquibase Migration
