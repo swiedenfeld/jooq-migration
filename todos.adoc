@@ -1,0 +1,23 @@
+= ToDos
+
+* [ ] Setup Gradle Project
+    * [ ] Setup pre-commit framework
+    * [ ] Setup spotless
+* [ ] Setup Postgres Database
+* [ ] Setup Liquibase Migration
+* [ ] Setup Testcontainers
+* [ ] Setup jOOQ Code Generation
+* [ ] Setup Data Generation for old using Instancio
+* [ ] Setup Migration framework (using existing work)
+* [ ] Create Migration Script
+* [ ] Write Blog Post showcasing
+    * [ ] Index detection / FK detection and automatic inclusion in migration scripts
+    * [ ] Column renames and compile time detection
+    * [ ] Conclusion
+* [ ] Write README
+* [ ] Upload code to github
+* [ ] Upload blog post to WP
+
+
+
+
