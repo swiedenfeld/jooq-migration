@@ -2,6 +2,7 @@ package com.opitzconsulting.cattlecrew.jooqmigration.migration;
 
 import static com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.tables.TmpMappingBookIsbn13Uuid.TMP_MAPPING_BOOK_ISBN13_UUID;
 import static com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.tables.TmpMappingMemberIdUuid.TMP_MAPPING_MEMBER_ID_UUID;
+import static org.jooq.impl.DSL.count;
 
 import com.opitzconsulting.cattlecrew.jooqmigration.jooq.demo.tables.Instance;
 import com.opitzconsulting.cattlecrew.jooqmigration.jooq.extensions.Routines;
@@ -23,10 +24,10 @@ public class LibraryMigration extends FullMigrationSupport {
 
     @Override
     protected void migrateTables() throws Exception {
-        createBookMappingTables("scripts/00_10_create_mapping_tables.sql");
-        mapMembers("scripts/10_members.sql");
-        mapBooks("scripts/20_books.sql");
-        mapCheckouts("scripts/30_checkout.sql");
+        createBookMappingTables("scripts/1010_create_mapping_tables.sql");
+        mapMembers("scripts/1020_members.sql");
+        mapBooks("scripts/1030_books.sql");
+        mapCheckouts("scripts/1040_checkout.sql");
     }
 
     private void mapCheckouts(String fileName) throws Exception {
@@ -135,6 +136,12 @@ public class LibraryMigration extends FullMigrationSupport {
                     .getSQL();
             statementCollector.collect(dsl.truncateTable(memberTarget).cascade().getSQL());
             statementCollector.collect(sql);
+            statementCollector.collect(dsl.deleteFrom(memberTarget)
+                    .where(memberTarget.EMAIL.in(dsl.select(memberTarget.EMAIL)
+                            .from(target)
+                            .groupBy(target.EMAIL)
+                            .having(count().gt(1))))
+                    .getSQL());
         }
     }
 

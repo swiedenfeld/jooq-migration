@@ -16,11 +16,11 @@ public abstract class FullMigrationSupport {
     }
 
     public void migrate(List<Table<?>> tables) throws Exception {
-        dropIndexe("scripts/010_disable_indexe.sql", tables);
-        dropConstraints("scripts/020_drop_constraints.sql", tables);
+        dropIndexe("scripts/0010_disable_indexe.sql", tables);
+        dropConstraints("scripts/0020_drop_constraints.sql", tables);
         migrateTables();
-        addConstraints("scripts/040_add_constraints.sql", tables);
-        addIndexe("scripts/050_enable_indexe.sql", tables);
+        addConstraints("scripts/2040_add_constraints.sql", tables);
+        addIndexe("scripts/2050_enable_indexe.sql", tables);
     }
 
     protected abstract void migrateTables() throws Exception;

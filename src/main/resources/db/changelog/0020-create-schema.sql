@@ -1,5 +1,5 @@
 -- liquibase formatted sql
--- changeset rat:5
+-- changeset rat:0020-5
 SET SEARCH_PATH TO jooq_demo, extensions;
 CREATE TABLE IF NOT EXISTS book
 (
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS book
     CONSTRAINT uq_book_isbn13 UNIQUE (isbn13)
 );
 
--- changeset rat:6
+-- changeset rat:0020-6
 CREATE TABLE IF NOT EXISTS member
 (
     id            uuid         NOT NULL    DEFAULT uuid_generate_v7()
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS member
     CONSTRAINT cc_member_date_of_birth CHECK ( date_of_birth <= current_date AND date_of_birth >= (current_date - INTERVAL '150 years' )::DATE)
 );
 
--- changeset rat:7
+-- changeset rat:0020-7
 CREATE TABLE IF NOT EXISTS instance
 (
     id                            uuid         NOT NULL    DEFAULT uuid_generate_v7(),
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS instance
     CONSTRAINT pk_instance PRIMARY KEY (id)
 );
 
--- changeset rat:8
+-- changeset rat:0020-8
 CREATE TABLE IF NOT EXISTS checkout
 (
     id                      uuid DEFAULT uuid_generate_v7() NOT NULL,
