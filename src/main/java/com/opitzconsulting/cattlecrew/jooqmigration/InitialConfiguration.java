@@ -4,6 +4,7 @@ import javax.sql.DataSource;
 import org.jooq.ConnectionProvider;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
+import org.jooq.conf.Settings;
 import org.jooq.impl.DataSourceConnectionProvider;
 import org.jooq.impl.DefaultConfiguration;
 import org.jooq.impl.DefaultDSLContext;
@@ -23,7 +24,8 @@ public class InitialConfiguration {
     @Bean
     @Autowired
     public DSLContext dslContext(ConnectionProvider connectionProvider) {
-        return new DefaultDSLContext(connectionProvider, SQLDialect.POSTGRES);
+        Settings settings = new Settings().withRenderFormatted(true);
+        return new DefaultDSLContext(connectionProvider, SQLDialect.POSTGRES, settings);
     }
 
     @Bean

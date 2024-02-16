@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset rat:1
+-- changeset rat:0020-1
 CREATE SCHEMA IF NOT EXISTS staging AUTHORIZATION jooq_demo_admin;
 GRANT USAGE ON SCHEMA staging TO jooq_demo_user;
 GRANT select,insert,update,delete ON ALL TABLES IN SCHEMA staging TO jooq_demo_user;
@@ -11,7 +11,7 @@ ALTER DEFAULT PRIVILEGES FOR USER jooq_demo_admin IN SCHEMA staging GRANT select
 ALTER DEFAULT PRIVILEGES FOR USER jooq_demo_admin IN SCHEMA staging GRANT select,usage ON SEQUENCES TO jooq_demo_user;
 ALTER DEFAULT PRIVILEGES FOR user jooq_demo_admin IN SCHEMA staging GRANT execute ON FUNCTIONS TO jooq_demo_user;
 
--- changeset rat:2
+-- changeset rat:0020-2
 CREATE TABLE staging.book
 (
     isbn13    VARCHAR(17)  NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE staging.book
     PRIMARY KEY (isbn13)
 );
 
--- changeset rat:3
+-- changeset rat:0020-3
 CREATE TABLE staging.member
 (
     id            SERIAL       NOT NULL,
@@ -35,7 +35,7 @@ CREATE TABLE staging.member
     PRIMARY KEY (id)
 );
 
--- changeset rat:4
+-- changeset rat:0020-4
 CREATE TABLE staging.checkout
 (
     id                 SERIAL      NOT NULL,
@@ -47,4 +47,19 @@ CREATE TABLE staging.checkout
     PRIMARY KEY (id),
     FOREIGN KEY (member_id) REFERENCES staging.member (id),
     FOREIGN KEY (isbn13) REFERENCES staging.book (isbn13)
+);
+
+
+-- changeset rat:0020-5
+CREATE TABLE staging.tmp_mapping_member_id_uuid(
+    member_id INTEGER NOT NULL,
+    uuid UUID NOT NULL,
+    PRIMARY KEY (member_id)
+);
+
+-- changeset rat:0020-6
+CREATE TABLE staging.tmp_mapping_book_isbn13_uuid(
+    isbn13 VARCHAR(17) NOT NULL,
+    uuid UUID NOT NULL,
+    PRIMARY KEY (isbn13)
 );
