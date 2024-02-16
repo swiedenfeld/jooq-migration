@@ -1,0 +1,22 @@
+version: '3'
+volumes:
+  postgres-data:
+services:
+  postgres:
+    build:
+      context: ./docker-compose/postgres
+    shm_size: '128mb'
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_ADMIN_PASSWORD}
+      - POSTGRESQL_MULTIPLE_DATABASES=jooq_demo
+    ports:
+      - '5432:5432'
+    volumes:
+      - "./docker-compose/postgres/initdb.d:/docker-entrypoint-initdb.d:Z"
+      - postgres-data:/var/lib/postgresql/data
+  adminer:
+    image: 'adminer:latest'
+    ports:
+      - '8080:8080'

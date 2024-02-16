@@ -1,14 +1,16 @@
 = ToDos
 
-* [ ] Setup Gradle Project
+* [x] Setup Gradle Project
 ** [x] Setup pre-commit framework
 ** [x] Adding .sdkmanrc
-** [ ] Setup spotless
-* [ ] Setup Postgres Database
-* [ ] Setup Liquibase Migration
-* [ ] Setup Testcontainers
-* [ ] Setup jOOQ Code Generation
-* [ ] Setup Data Generation for old using Instancio
+** [x] Setup spotless
+** [x] Setup docker-compose plugin
+* [x] Setup Postgres Database
+* [x] Setup application.yaml
+* [x] Setup Liquibase Migration
+* [x] Setup Docker-compose
+* [x] Setup jOOQ Code Generation
+* [x] Setup Data Generation for old using Datafaker
 * [ ] Setup Migration framework (using existing work)
 * [ ] Create Migration Script
 * [ ] Write Blog Post showcasing

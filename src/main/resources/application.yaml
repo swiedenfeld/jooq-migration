@@ -1,0 +1,12 @@
+spring:
+  liquibase:
+    default-schema: jooq_demo
+    change-log: classpath:db/changelog/db.changelog.master.yaml
+    user: jooq_demo_admin
+    password: jooq_demo_admin
+  datasource:
+    url: jdbc:postgresql://localhost:5432/jooq_demo
+    username: jooq_demo_admin
+    password: jooq_demo_admin
+
+

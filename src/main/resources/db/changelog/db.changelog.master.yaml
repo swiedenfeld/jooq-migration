@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: 0010-create-schema-staging.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 0020-create-schema.sql
+      relativeToChangelogFile: true
