@@ -82,12 +82,23 @@ public class StagingDataGeneratorTest {
         checkoutRecord.setId(checkoutSequence++);
 
         // create with datafaker faker a date between the published date and 20 years later
-        Date toDate = java.sql.Date.valueOf(bookRecord.getPublished().plusYears(20));
+        java.sql.Date noCheckoutAfterDate =
+                java.sql.Date.valueOf(bookRecord.getPublished().plusYears(20));
+        Date now = new Date();
+        Date toDate = noCheckoutAfterDate.after(now) ? now : noCheckoutAfterDate;
         Date checkoutDate = faker.date().between(latestReturnDate, toDate);
         checkoutRecord.setCheckoutDate(
                 checkoutDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
         checkoutRecord.setReturnDate(checkoutRecord.getCheckoutDate().plusWeeks(4));
-
+        Date actualReturnAfter =
+                java.sql.Date.valueOf(checkoutRecord.getCheckoutDate().plusDays(1));
+        Date actualReturnBefore =
+                java.sql.Date.valueOf(checkoutRecord.getReturnDate().plusWeeks(8));
+        checkoutRecord.setActualReturnDate(faker.date()
+                .between(actualReturnAfter, actualReturnBefore)
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate());
         // create with datafaker a date between the checkout date minus 12 years and the checkout date minus 75 years
         Date birthdayBefore =
                 java.sql.Date.valueOf(checkoutRecord.getCheckoutDate().minusYears(12));

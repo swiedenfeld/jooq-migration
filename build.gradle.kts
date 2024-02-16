@@ -25,13 +25,10 @@ dependencies {
     implementation("net.datafaker:datafaker:2.1.0")
     implementation("org.jooq:jooq:3.19.3")
     implementation("org.jooq:jooq-meta:3.19.3")
+    implementation("org.jooq:jooq-postgres-extensions:3.19.3")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("org.testcontainers:junit-jupiter")
-    testImplementation("org.testcontainers:postgresql")
-    testImplementation("org.instancio:instancio-junit:4.2.0")
     jooqCodegen("org.postgresql:postgresql:42.5.4")
 }
 
