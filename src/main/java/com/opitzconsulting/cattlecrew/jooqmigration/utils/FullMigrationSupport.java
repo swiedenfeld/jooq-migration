@@ -18,9 +18,36 @@ public abstract class FullMigrationSupport {
     public void migrate(List<Table<?>> tables) throws Exception {
         dropIndexe("scripts/0010_disable_indexe.sql", tables);
         dropConstraints("scripts/0020_drop_constraints.sql", tables);
+        unlogTables("scripts/0030_unlog_tables.sql", tables);
         migrateTables();
-        addConstraints("scripts/2040_add_constraints.sql", tables);
-        addIndexe("scripts/2050_enable_indexe.sql", tables);
+        logTables("scripts/2040_log_tables.sql", tables);
+        addConstraints("scripts/2050_add_constraints.sql", tables);
+        addIndexe("scripts/2060_enable_indexe.sql", tables);
+        analyzeTables("scripts/2070_analyze_tables.sql", tables);
+    }
+
+    private void analyzeTables(String s, List<Table<?>> tables) throws Exception {
+        try (FileWriterCollector statementCollector = new FileWriterCollector(s)) {
+            tables.forEach(table -> {
+                statementCollector.collect("ANALYZE " + table.toString());
+            });
+        }
+    }
+
+    private void logTables(String fileName, List<Table<?>> tables) throws Exception {
+        try (FileWriterCollector statementCollector = new FileWriterCollector(fileName)) {
+            tables.forEach(table -> {
+                statementCollector.collect("ALTER TABLE " + table.toString() + " SET LOGGED");
+            });
+        }
+    }
+
+    private void unlogTables(String fileName, List<Table<?>> tables) throws Exception {
+        try (FileWriterCollector statementCollector = new FileWriterCollector(fileName)) {
+            tables.forEach(table -> {
+                statementCollector.collect("ALTER TABLE " + table.toString() + " SET UNLOGGED");
+            });
+        }
     }
 
     protected abstract void migrateTables() throws Exception;
