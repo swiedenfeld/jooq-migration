@@ -1,15 +1,8 @@
 package com.opitzconsulting.cattlecrew.jooqmigration.generator;
 
-import static com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.Tables.BOOK;
-import static com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.Tables.CHECKOUT;
-import static com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.tables.Member.MEMBER;
-
 import com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.tables.records.BookRecord;
 import com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.tables.records.CheckoutRecord;
 import com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.tables.records.MemberRecord;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
 import net.datafaker.Faker;
 import net.datafaker.providers.base.Book;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +12,14 @@ import org.jooq.InsertReturningStep;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.time.ZoneId;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import static com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.Tables.BOOK;
+import static com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.Tables.CHECKOUT;
+import static com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.tables.Member.MEMBER;
 
 @SpringBootTest
 public class StagingDataGeneratorTest {

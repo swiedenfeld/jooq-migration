@@ -26,6 +26,7 @@ dependencies {
     implementation("org.jooq:jooq:3.19.3")
     implementation("org.jooq:jooq-meta:3.19.3")
     implementation("org.jooq:jooq-postgres-extensions:3.19.3")
+    implementation("org.jetbrains:annotations:24.1.0")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
