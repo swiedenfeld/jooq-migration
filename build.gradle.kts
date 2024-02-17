@@ -6,6 +6,7 @@ plugins {
     id("com.avast.gradle.docker-compose") version "0.17.6"
     id("org.jooq.jooq-codegen-gradle") version "3.19.3"
     id("org.liquibase.gradle") version "2.2.1"
+    id("org.asciidoctor.jvm.convert") version "3.3.2"
 }
 
 group = "com.opitzconsulting.cattlecrew"
@@ -145,6 +146,20 @@ liquibase {
             )
         }
     }
+}
+
+tasks.asciidoctor {
+    inputs.dir("${projectDir}/blogs")
+    sourceDir {
+        "${projectDir}/blogs"
+    }
+    sources {
+        include("*.adoc")
+    }
+
+    setOutputDir(file("build/blogs"))
+
+
 }
 
 tasks.withType<JavaCompile> {

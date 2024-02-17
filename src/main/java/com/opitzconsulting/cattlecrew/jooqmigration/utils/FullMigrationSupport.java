@@ -36,7 +36,7 @@ public abstract class FullMigrationSupport {
 
     private void logTables(String fileName, List<Table<?>> tables) throws Exception {
         try (FileWriterCollector statementCollector = new FileWriterCollector(fileName)) {
-            tables.forEach(table -> {
+            TopologicalSort.topologicalSort(tables).reversed().forEach(table -> {
                 statementCollector.collect("ALTER TABLE " + table.toString() + " SET LOGGED");
             });
         }
@@ -44,7 +44,7 @@ public abstract class FullMigrationSupport {
 
     private void unlogTables(String fileName, List<Table<?>> tables) throws Exception {
         try (FileWriterCollector statementCollector = new FileWriterCollector(fileName)) {
-            tables.forEach(table -> {
+            TopologicalSort.topologicalSort(tables).forEach(table -> {
                 statementCollector.collect("ALTER TABLE " + table.toString() + " SET UNLOGGED");
             });
         }

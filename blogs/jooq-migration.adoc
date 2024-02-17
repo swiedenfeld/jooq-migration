@@ -1,0 +1,102 @@
+= Developer-centric SQL Migrations
+
+Bei vielen Arten von Migrationsprojekten steht man vor der Herausforderung der Datenmigration.
+In diesem Artikel wird gezeigt, wie jOOQ dabei unterstützen kann, sowohl Änderungen am Source Schema als auch am Target Schema zu erkennen, (gewisse) Fehler durch Automatisierung zu vermeiden und Änderungen aufgrund von Compile-Time-Safety zu verifizieren.
+
+== Ausgangssituation
+
+Die hier beschriebene Situation haben wir schon in ähnlicher Art in einigen Migrationsprojekten erlebt.
+Das Quellsystem war eine Oracle Datenbank, das Zielsystem eine PostgreSQL Datenbank.
+Dabei wurde die Oracle Datenbank im Wesentlichen als Datensenke betrachtet und enthielt keine Geschäftslogik.
+
+Die Datenbank wurde mittels ora2pg in ein PostgreSQL "Staging" Schema migriert.
+Das Schema halten wir in der gleichen Datenbank, wie das spätere Zielschema.
+
+Das haben wir gemacht, damit wir einfache SQL Abfragen zur Migration nutzen können.
+Es kann aber auch sinnvoll sein, das Staging Schema in einer eigenen Datenbank, bzw. Datenbankcluster zu halten, um die Datenbanken zu entkoppeln.
+Dann kann mann Postgres Foreign Data Wrapper nutzen, um genauso einfach auf die Daten zuzugreifen.
+Dies ist sinnvoll, da bei vielen Cloudanbietern, der einmal zugewiesene Speicher nicht wieder einfach freigegeben werden kann.
+Liegt das Staging Schema in einem eigenen Datnbankcluster, so kann der gesamte Server einfach gelöscht werden.
+
+Wir halten es für sinnvoll möglichst frühzeitig mit der Entwicklung der Migrationsskripte zu beginnen.
+Häufig stellt man fest, dass die Altdaten Konstellationen enthalten, die man in Zukunft nicht mehr zulassen möchte.
+Dann stellt sich die Frage, wie mit den Altdaten umgegangen werden soll.
+
+Gleichzeitig findet aber die Migration oder Neuimplementierung der Anwendung statt.
+Die Migration als Treiber sorgt für einen Datenbank-First Ansatz.
+Ebenfalls hilfreich ist es, dass man mit den Altdaten arbeiten kann.
+Dies liefert eine realistische Datenmenge, denn leere Datenbanken sind immer schnell.
+Das Thema Nutzung von Produktionsdaten zu Testzwecken ist aber ein anderes Thema.
+
+Wenn sich aber das Zielschema noch ändert, so müssen die Migrationsskripte angepasst werden.
+Migrationsskripte sind aber von den Liquibase oder Flyway Skripten getrennt.
+
+== Was gehört zu einer performanten Migration?
+
+Es gibt verschiedene Arten von Migrationen. In der Regel ist es sinnvoll bei IT Systemen eine inkrementelle Migrationsstrategie zu verfolgen.
+Das kann trotzdem bedeuten, dass Teile des IT-Systems jeweils in einem Schritt migriert werden (Big Bang).
+Dann ist häufig eine performante Migration der Daten wichtig.
+
+Beim Bulk load von Daten in eine Postgres Datenbank oder zwischen Tabellen gibt es dazu einiges zu beachten.
+Ähnliches gilt auch für andere Datenbanken.
+
+Angelehnt an die Liste von https://www.enterprisedb.com/blog/7-best-practice-tips-postgresql-bulk-data-loading[EDB] sind folgende Punkte wichtig für unser Szenario (Postgres -> Postgres mittels SQL):
+
+* Tabellen in die Migriert werden sollen, sollten vorher leer sein.
+* Tabellen sollten "unlogged" sein.
+* Tabellen sollten keine Indizes haben.
+* Tabellen sollten keine Constraints haben.
+* Tabellen sollten keine Triggers haben.
+* Tabellen sollten keine Foreign Keys haben.
+
+Dann werden die Daten mittels SQL Skripten geladen.
+Und dann werden die Indizes, Constraints, Triggers und Foreign Keys wiederhergestellt.
+Zum Abschluss sollte ein Analyze ausgeführt werden.
+
+== Was ist die Herausforderung bei gleichzeitiger Entwicklungstätigkeiten?
+
+Wird die Anwendung neu entwickelt, so ändert sich das Zielschema.
+Dabei sind insbesondere die Änderungen an den Zieltabellen interessant.
+
+* Neue Indizes
+* Neue Constraints (inklusive Foreign Keys)
+* Neue Triggers
+* Umbenennungen von Spalten
+
+Es ist wichtig, dass diese Änderungen entweder automatisch erkannt und berücksichtigt werden oder vor Ausführung der Skripte auffallen.
+Da die Laufzeiten für die Migrationen sehr lang sein können (Stunden bis Tage), ist es wichtig, dass die Migrationsskripte möglichst fehlerfrei sind.
+Ansonsten ärgert man sich über einfache Fehler, die früher hätten erkannt werden können und weil die Probemigration nicht abgeschlossen werden konnte.
+
+== Wie kann jOOQ helfen?
+
+== Das Beispielprojekt
+
+=== Datenbank aufsetzen
+
+=== Testdaten erzeugen
+
+=== Migrationsskripte erstellen
+
+=== Migrationsskripte ausführen
+
+=== Zusätzlichen Index erstellen
+
+=== Migrationsskripte erneuet erstellen
+
+=== Spalte umbenennen
+
+== Ausblick
+
+* pg anonymizer
+
+
+
+
+
+
+
+
+
+
+
+
