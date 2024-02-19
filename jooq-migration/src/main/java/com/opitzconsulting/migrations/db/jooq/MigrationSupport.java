@@ -1,4 +1,4 @@
-package com.opitzconsulting.cattlecrew.jooqmigration.utils;
+package com.opitzconsulting.migrations.db.jooq;
 
 import java.util.List;
 import org.jooq.DSLContext;

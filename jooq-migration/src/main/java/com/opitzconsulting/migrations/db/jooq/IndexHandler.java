@@ -1,14 +1,10 @@
-package com.opitzconsulting.cattlecrew.jooqmigration.utils;
+package com.opitzconsulting.migrations.db.jooq;
 
 import org.jooq.DSLContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class IndexHandler {
     private DSLContext dsl;
 
-    @Autowired
     public IndexHandler(DSLContext dslContext) {
         this.dsl = dslContext.dsl();
     }

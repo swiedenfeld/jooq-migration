@@ -1,4 +1,4 @@
-package com.opitzconsulting.cattlecrew.jooqmigration.utils;
+package com.opitzconsulting.migrations.db.jooq;
 
 import java.io.FileWriter;
 
@@ -20,7 +20,6 @@ public class FileWriterCollector implements StatementCollector, AutoCloseable {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        System.out.println(statement);
     }
 
     @Override

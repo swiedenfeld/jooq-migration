@@ -1,8 +1,9 @@
-package com.opitzconsulting.cattlecrew.jooqmigration.utils;
+package com.opitzconsulting.migrations.db.jooq;
 
-import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.Table;
+
+import java.util.List;
 
 public abstract class FullMigrationSupport {
     protected final DSLContext dsl;
