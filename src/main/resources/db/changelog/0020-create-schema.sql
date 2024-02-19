@@ -33,8 +33,9 @@ CREATE TABLE IF NOT EXISTS member
     created_by    VARCHAR(100) NOT NULL    DEFAULT current_user,
     modified_at   TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp,
     modified_by   VARCHAR(100) NOT NULL    DEFAULT current_user,
-    CONSTRAINT cc_member_date_of_birth CHECK ( date_of_birth <= current_date AND date_of_birth >= (current_date - INTERVAL '150 years' )::DATE)
+    CONSTRAINT cc_member_date_of_birth CHECK ( date_of_birth <= current_date AND date_of_birth >= (current_date - INTERVAL '150 years')::DATE)
 );
+COMMENT ON COLUMN member.email IS 'Email addresses must be unique, but are not a primary key, because they may change over time.';
 
 -- changeset rat:0020-7
 CREATE TABLE IF NOT EXISTS instance
@@ -55,18 +56,18 @@ CREATE TABLE IF NOT EXISTS instance
 -- changeset rat:0020-8
 CREATE TABLE IF NOT EXISTS checkout
 (
-    id                      uuid DEFAULT uuid_generate_v7() NOT NULL,
-    member_id               uuid                            NOT NULL,
-    instance_id             uuid                            NOT NULL,
-    checkout_date           DATE                            NOT NULL,
-    return_date             DATE                            NOT NULL,
+    id                      uuid                     DEFAULT uuid_generate_v7() NOT NULL,
+    member_id               uuid         NOT NULL,
+    instance_id             uuid         NOT NULL,
+    checkout_date           DATE         NOT NULL,
+    return_date             DATE         NOT NULL,
     planned_checkout_period daterange GENERATED ALWAYS AS (daterange(checkout_date, return_date, '[]')) STORED,
     actual_return_date      DATE,
     actual_checkout_period  daterange GENERATED ALWAYS AS (daterange(checkout_date, actual_return_date, '[]')) STORED,
-    created_at                    TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp,
-    created_by                    VARCHAR(100) NOT NULL    DEFAULT current_user,
-    modified_at                   TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp,
-    modified_by                   VARCHAR(100) NOT NULL    DEFAULT current_user,
+    created_at              TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp,
+    created_by              VARCHAR(100) NOT NULL    DEFAULT current_user,
+    modified_at             TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp,
+    modified_by             VARCHAR(100) NOT NULL    DEFAULT current_user,
     CONSTRAINT pk_checkout PRIMARY KEY (id),
     FOREIGN KEY (member_id) REFERENCES member (id),
     FOREIGN KEY (instance_id) REFERENCES instance (id),

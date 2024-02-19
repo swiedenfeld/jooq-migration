@@ -11,8 +11,9 @@
 * [x] Setup Docker-compose
 * [x] Setup jOOQ Code Generation
 * [x] Setup Data Generation for old using Datafaker
-* [ ] Setup Migration framework (using existing work)
-* [ ] Create Migration Script
+* [x] Setup Migration framework (using existing work)
+* [x] Create Migration Script
+** [x] Update StatementCollector to record script names and print a "migration script" at the end
 * [ ] Write Blog Post showcasing
 ** [ ] Index detection / FK detection and automatic inclusion in migration scripts
 ** [ ] Column renames and compile time detection

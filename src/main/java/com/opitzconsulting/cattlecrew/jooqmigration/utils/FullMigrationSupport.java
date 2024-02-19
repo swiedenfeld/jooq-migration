@@ -3,47 +3,46 @@ package com.opitzconsulting.cattlecrew.jooqmigration.utils;
 import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.Table;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public abstract class FullMigrationSupport {
     protected final DSLContext dsl;
+    protected final MigrationScriptsCollector migrationScriptsCollector;
 
-    @Autowired
-    public FullMigrationSupport(DSLContext dsl) {
+    public FullMigrationSupport(DSLContext dsl, MigrationScriptsCollector migrationScriptsCollector) {
         this.dsl = dsl;
+        this.migrationScriptsCollector = migrationScriptsCollector;
     }
 
     public void migrate(List<Table<?>> tables) throws Exception {
-        dropIndexe("scripts/0010_disable_indexe.sql", tables);
-        dropConstraints("scripts/0020_drop_constraints.sql", tables);
-        unlogTables("scripts/0030_unlog_tables.sql", tables);
+        dropIndexe(migrationScriptsCollector.newScript("0010_disable_indexe.sql"), tables);
+        dropConstraints(migrationScriptsCollector.newScript("0020_drop_constraints.sql"), tables);
+        unlogTables(migrationScriptsCollector.newScript("0030_unlog_tables.sql"), tables);
         migrateTables();
-        logTables("scripts/2040_log_tables.sql", tables);
-        addConstraints("scripts/2050_add_constraints.sql", tables);
-        addIndexe("scripts/2060_enable_indexe.sql", tables);
-        analyzeTables("scripts/2070_analyze_tables.sql", tables);
+        logTables(migrationScriptsCollector.newScript("2040_log_tables.sql"), tables);
+        addConstraints(migrationScriptsCollector.newScript("2050_add_constraints.sql"), tables);
+        addIndexe(migrationScriptsCollector.newScript("2060_enable_indexe.sql"), tables);
+        analyzeTables(migrationScriptsCollector.newScript("2070_analyze_tables.sql"), tables);
+        migrationScriptsCollector.close();
     }
 
-    private void analyzeTables(String s, List<Table<?>> tables) throws Exception {
-        try (FileWriterCollector statementCollector = new FileWriterCollector(s)) {
+    private void analyzeTables(StatementCollector statementCollector, List<Table<?>> tables) throws Exception {
+        try (statementCollector) {
             tables.forEach(table -> {
                 statementCollector.collect("ANALYZE " + table.toString());
             });
         }
     }
 
-    private void logTables(String fileName, List<Table<?>> tables) throws Exception {
-        try (FileWriterCollector statementCollector = new FileWriterCollector(fileName)) {
+    private void logTables(StatementCollector statementCollector, List<Table<?>> tables) throws Exception {
+        try (statementCollector) {
             TopologicalSort.topologicalSort(tables).reversed().forEach(table -> {
                 statementCollector.collect("ALTER TABLE " + table.toString() + " SET LOGGED");
             });
         }
     }
 
-    private void unlogTables(String fileName, List<Table<?>> tables) throws Exception {
-        try (FileWriterCollector statementCollector = new FileWriterCollector(fileName)) {
+    private void unlogTables(StatementCollector statementCollector, List<Table<?>> tables) throws Exception {
+        try (statementCollector) {
             TopologicalSort.topologicalSort(tables).forEach(table -> {
                 statementCollector.collect("ALTER TABLE " + table.toString() + " SET UNLOGGED");
             });
@@ -52,9 +51,9 @@ public abstract class FullMigrationSupport {
 
     protected abstract void migrateTables() throws Exception;
 
-    private void addConstraints(String fileName, List<Table<?>> tables) throws Exception {
+    private void addConstraints(StatementCollector statementCollector, List<Table<?>> tables) throws Exception {
         List<Table<?>> topoSorted = TopologicalSort.topologicalSort(tables).reversed();
-        try (FileWriterCollector statementCollector = new FileWriterCollector(fileName)) {
+        try (statementCollector) {
             topoSorted.forEach(table -> {
                 table.getKeys().forEach(k -> {
                     statementCollector.collect(
@@ -72,9 +71,9 @@ public abstract class FullMigrationSupport {
         }
     }
 
-    private void dropConstraints(String fileName, List<Table<?>> tables) throws Exception {
+    private void dropConstraints(StatementCollector statementCollector, List<Table<?>> tables) throws Exception {
         List<Table<?>> topoSorted = TopologicalSort.topologicalSort(tables);
-        try (FileWriterCollector statementCollector = new FileWriterCollector(fileName)) {
+        try (statementCollector) {
             topoSorted.forEach(table -> {
                 dropForeignKeys(table, statementCollector);
                 dropUniqueConstraints(table, statementCollector);
@@ -83,7 +82,7 @@ public abstract class FullMigrationSupport {
         }
     }
 
-    private void dropCheckConstraints(Table<?> table, FileWriterCollector statementCollector) {
+    private void dropCheckConstraints(Table<?> table, StatementCollector statementCollector) {
         table.getChecks().forEach(check -> {
             statementCollector.collect(dsl.alterTable(table)
                     .dropConstraintIfExists(check.getName())
@@ -91,7 +90,7 @@ public abstract class FullMigrationSupport {
         });
     }
 
-    private void dropUniqueConstraints(Table<?> table, FileWriterCollector statementCollector) {
+    private void dropUniqueConstraints(Table<?> table, StatementCollector statementCollector) {
         table.getKeys().forEach(uc -> {
             statementCollector.collect(dsl.alterTable(uc.getTable())
                     .dropConstraintIfExists(uc.getName())
@@ -99,7 +98,7 @@ public abstract class FullMigrationSupport {
         });
     }
 
-    private void dropForeignKeys(Table<?> table, FileWriterCollector statementCollector) {
+    private void dropForeignKeys(Table<?> table, StatementCollector statementCollector) {
         table.getReferences().forEach(fk -> {
             statementCollector.collect(dsl.alterTable(fk.getTable())
                     .dropConstraintIfExists(fk.getName())
@@ -107,8 +106,8 @@ public abstract class FullMigrationSupport {
         });
     }
 
-    private void addIndexe(String fileName, List<Table<?>> tables) throws Exception {
-        try (FileWriterCollector statementCollector = new FileWriterCollector(fileName)) {
+    private void addIndexe(StatementCollector statementCollector, List<Table<?>> tables) throws Exception {
+        try (statementCollector) {
             tables.forEach(table -> {
                 table.getIndexes().forEach(index -> {
                     statementCollector.collect(
@@ -118,8 +117,8 @@ public abstract class FullMigrationSupport {
         }
     }
 
-    private void dropIndexe(String fileName, List<Table<?>> tables) throws Exception {
-        try (FileWriterCollector statementCollector = new FileWriterCollector(fileName)) {
+    private void dropIndexe(StatementCollector statementCollector, List<Table<?>> tables) throws Exception {
+        try (statementCollector) {
             tables.forEach(table -> {
                 table.getIndexes().forEach(index -> {
                     statementCollector.collect(dsl.dropIndexIfExists(index).getSQL());

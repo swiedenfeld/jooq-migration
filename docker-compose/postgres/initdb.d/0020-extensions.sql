@@ -16,6 +16,12 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA extensions;
 CREATE EXTENSION IF NOT EXISTS pg_uuidv7 WITH SCHEMA extensions;
 CREATE EXTENSION IF NOT EXISTS btree_gist WITH SCHEMA extensions; -- used for EXCLUSION on uuid
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA extensions; -- used for fuzzy search
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA extensions; -- used for query statistics
+CREATE EXTENSION IF NOT EXISTS hstore WITH SCHEMA extensions; -- used for key-value storage
+CREATE EXTENSION IF NOT EXISTS isn WITH SCHEMA extensions; -- used for international standard numbers
+CREATE EXTENSION IF NOT EXISTS fuzzystrmatch WITH SCHEMA extensions; -- used for fuzzy search
+CREATE EXTENSION IF NOT EXISTS anon WITH SCHEMA extensions CASCADE ; -- used for anonymization
 
 -- faker extension
 CREATE SCHEMA faker;

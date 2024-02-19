@@ -2,35 +2,35 @@ package com.opitzconsulting.cattlecrew.jooqmigration.migration;
 
 import static com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.tables.TmpMappingBookIsbn13Uuid.TMP_MAPPING_BOOK_ISBN13_UUID;
 import static com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.tables.TmpMappingMemberIdUuid.TMP_MAPPING_MEMBER_ID_UUID;
-import static org.jooq.impl.DSL.count;
+import static org.jooq.impl.DSL.*;
 
 import com.opitzconsulting.cattlecrew.jooqmigration.jooq.demo.tables.Instance;
 import com.opitzconsulting.cattlecrew.jooqmigration.jooq.extensions.Routines;
 import com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.tables.Book;
 import com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.tables.Checkout;
 import com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.tables.Member;
-import com.opitzconsulting.cattlecrew.jooqmigration.utils.FileWriterCollector;
 import com.opitzconsulting.cattlecrew.jooqmigration.utils.FullMigrationSupport;
+import com.opitzconsulting.cattlecrew.jooqmigration.utils.MigrationScriptsCollector;
+import com.opitzconsulting.cattlecrew.jooqmigration.utils.StatementCollector;
+import java.io.File;
 import org.jooq.DSLContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class LibraryMigration extends FullMigrationSupport {
-    @Autowired
-    public LibraryMigration(DSLContext dsl) {
-        super(dsl);
+    public LibraryMigration(DSLContext dsl, String scriptsPath) {
+        super(dsl, new MigrationScriptsCollector(new File(scriptsPath)));
     }
 
     @Override
     protected void migrateTables() throws Exception {
-        createBookMappingTables("scripts/1010_create_mapping_tables.sql");
-        mapMembers("scripts/1020_members.sql");
-        mapBooks("scripts/1030_books.sql");
-        mapCheckouts("scripts/1040_checkout.sql");
+        createBookMappingTables(migrationScriptsCollector.newScript("1010_create_mapping_tables.sql"));
+        mapMembers(migrationScriptsCollector.newScript("1020_members.sql"));
+        mapBooks(migrationScriptsCollector.newScript("1030_books.sql"));
+        mapCheckouts(migrationScriptsCollector.newScript("1040_checkout.sql"));
     }
 
-    private void mapCheckouts(String fileName) throws Exception {
+    private void mapCheckouts(StatementCollector statementCollector) throws Exception {
         var checkoutStaging = Checkout.CHECKOUT;
         var source = checkoutStaging.as("source");
         var checkoutDemo = com.opitzconsulting.cattlecrew.jooqmigration.jooq.demo.tables.Checkout.CHECKOUT;
@@ -38,7 +38,7 @@ public class LibraryMigration extends FullMigrationSupport {
         var instance = Instance.INSTANCE;
         var mappingBooks = TMP_MAPPING_BOOK_ISBN13_UUID;
         var mappingMembers = TMP_MAPPING_MEMBER_ID_UUID;
-        try (FileWriterCollector statementCollector = new FileWriterCollector(fileName)) {
+        try (statementCollector) {
             var sql = dsl.insertInto(
                             target,
                             target.ID,
@@ -68,14 +68,14 @@ public class LibraryMigration extends FullMigrationSupport {
         }
     }
 
-    private void mapBooks(String fileName) throws Exception {
+    private void mapBooks(StatementCollector statementCollector) throws Exception {
         var source = Book.BOOK.as("source");
         var bookTarget = com.opitzconsulting.cattlecrew.jooqmigration.jooq.demo.tables.Book.BOOK;
         var target = bookTarget.as("target");
         Instance instance = Instance.INSTANCE;
         var instanceTarget = instance.as("instanceTarget");
         var mapping = TMP_MAPPING_BOOK_ISBN13_UUID.as("mapping");
-        try (FileWriterCollector statementCollector = new FileWriterCollector(fileName)) {
+        try (statementCollector) {
             String sql = dsl.insertInto(
                             target,
                             target.ID,
@@ -109,12 +109,12 @@ public class LibraryMigration extends FullMigrationSupport {
         }
     }
 
-    private void mapMembers(String fileName) throws Exception {
+    private void mapMembers(StatementCollector statementCollector) throws Exception {
         var memberTarget = com.opitzconsulting.cattlecrew.jooqmigration.jooq.demo.tables.Member.MEMBER;
         var target = memberTarget.as("target");
         var source = Member.MEMBER.as("source");
         var mapping = TMP_MAPPING_MEMBER_ID_UUID.as("mapping");
-        try (FileWriterCollector statementCollector = new FileWriterCollector(fileName)) {
+        try (statementCollector) {
             String sql = dsl.insertInto(
                             target,
                             target.ID,
@@ -145,10 +145,10 @@ public class LibraryMigration extends FullMigrationSupport {
         }
     }
 
-    private void createBookMappingTables(String fileName) throws Exception {
+    private void createBookMappingTables(StatementCollector statementCollector) throws Exception {
         Book book = Book.BOOK.as("book");
         Member member = Member.MEMBER.as("member");
-        try (FileWriterCollector statementCollector = new FileWriterCollector(fileName)) {
+        try (statementCollector) {
             statementCollector.collect(
                     dsl.truncateTable(TMP_MAPPING_BOOK_ISBN13_UUID).getSQL());
             statementCollector.collect(
