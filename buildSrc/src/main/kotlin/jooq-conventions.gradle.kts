@@ -12,7 +12,9 @@ ext {
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
-    sourceSets.getByName("main").java.srcDir("build/generated-src/jooq/main")
+    sourceSets.getByName("main").java.srcDir("build/generated-src/jooq/demo")
+    sourceSets.getByName("main").java.srcDir("build/generated-src/jooq/staging")
+    sourceSets.getByName("main").java.srcDir("build/generated-src/jooq/extensions")
 }
 
 repositories {
@@ -47,8 +49,9 @@ jooq {
                 includes = ".*"
                 excludes = "databasechangelog|databasechangeloglock"
             }
-            target {
-                directory = "build/generated-src/jooq/main"
+            generate {
+                isNonnullAnnotation = true
+                isNullableAnnotation = true
             }
         }
 

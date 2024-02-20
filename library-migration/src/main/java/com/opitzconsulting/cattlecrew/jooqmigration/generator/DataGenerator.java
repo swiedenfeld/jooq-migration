@@ -1,4 +1,4 @@
-package com.opitzconsulting.cattlecrew.jooqmigration.generator;
+package com.opitzconsulting.cattlecrew.jooqmigration;
 
 import static com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.Tables.BOOK;
 import static com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.Tables.CHECKOUT;
@@ -17,12 +17,11 @@ import org.apache.commons.collections4.ListUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 import org.jooq.InsertReturningStep;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootTest
-public class StagingDataGeneratorTest {
+@SpringBootApplication
+public class DataGenerator {
     public static final int MIN_NUMBER_OF_BOOKS = 10000;
     public static final int MAX_NUMBER_OF_BOOKS = 50000;
     public static final int MIN_NUMBER_OF_MEMBERS = 500;
@@ -35,6 +34,11 @@ public class StagingDataGeneratorTest {
 
     private int memberSequence = 0;
     private int checkoutSequence = 0;
+
+    public static void main(String[] args) {
+        DataGenerator stagingDataGeneratorTest = new DataGenerator();
+        stagingDataGeneratorTest.generateData();
+    }
 
     private static LocalDate fakeCheckoutDate(BookRecord bookRecord, Faker faker, Date latestReturnDate) {
         java.sql.Date noCheckoutAfterDate =
@@ -65,9 +69,10 @@ public class StagingDataGeneratorTest {
         return convertToLocalDate(faker.date().between(actualReturnAfter, actualReturnBefore));
     }
 
-    @Test
-    void testGenerateStagingData() {
-        Faker faker = new Faker(Locale.GERMANY);
+    private void generateData() {
+        Faker faker = new Faker(
+                Locale.GERMANY,
+                new Random(1234)); // we want to have the same data every time for this blog post so we use a fixed seed
         Collection<BookRecord> books;
         ArrayList<MemberRecord> members;
         Collection<CheckoutRecord> checkoutRecords = new LinkedList<>();
