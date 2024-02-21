@@ -213,4 +213,3 @@ Wenn man eine neue Not Null Spalte hinzufügt, dann wird das nicht automatisch e
 == Fazit
 
 Auch wenn nicht Änderungen erkannt werden, ist die Nutzung von jOOQ für die Erstellung von Migrationsskripten sehr hilfreich und kann einige Fehlerquellen adressieren, die bei gleichzeitiger Entwicklungstätigkeit auftreten können.
-

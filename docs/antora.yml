@@ -1,0 +1,5 @@
+name: jooq-migration
+title: Jooq Migration Demo
+start_page: ROOT:index.adoc
+nav:
+  - modules/ROOT/nav.adoc

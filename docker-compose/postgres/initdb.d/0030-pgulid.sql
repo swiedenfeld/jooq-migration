@@ -25,7 +25,7 @@ CREATE FUNCTION generate_ulid()
 AS $$
 DECLARE
     -- Crockford's Base32
-    encoding   BYTEA = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+    encoding   BYTEA = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'; -- pragma: allowlist secret
     timestamp  BYTEA = E'\\000\\000\\000\\000\\000\\000';
     output     TEXT = '';
 

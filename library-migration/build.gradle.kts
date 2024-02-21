@@ -13,7 +13,7 @@ plugins {
 group = "com.opitzconsulting.cattlecrew"
 version = "0.0.1-SNAPSHOT"
 
-extra["springShellVersion"] = "3.2.1"
+ext["springShellVersion"] = "3.2.1"
 
 dependencyManagement {
     imports {
@@ -31,7 +31,7 @@ dependencies {
     implementation("net.datafaker:datafaker:2.1.0")
     implementation("org.jetbrains:annotations:24.1.0")
 
-    runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("org.postgresql:postgresql:${property("postgresqlVersion")}")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
 }

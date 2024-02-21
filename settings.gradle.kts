@@ -1,3 +1,3 @@
 rootProject.name = "jooq-migration"
 
-include("db", "jooq-migration", "library-migration")
+include("db", "jooq-migration", "library-migration", "docs")

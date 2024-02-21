@@ -16,16 +16,25 @@ services:
       - "./docker-compose/postgres/initdb.d:/docker-entrypoint-initdb.d:Z"
       - postgres-data:/var/lib/postgresql/data
 
-  pgadmin:
-    image: dpage/pgadmin4:8.3
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
-      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
-    ports:
-      - '5050:80'
-    volumes:
-      - pgadmin-data:/var/lib/pgadmin
   adminer:
     image: 'adminer:latest'
     ports:
       - '8080:8080'
+
+  kroki:
+    profiles:
+      - doc
+    image: yuzutech/kroki:0.24.1
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mermaid
+    environment:
+      - KROKI_MERMAID_HOST=mermaid
+      - KROKI_SAFE_MODE=UNSAFE
+  mermaid:
+    profiles:
+      - doc
+    image: yuzutech/kroki-mermaid:0.24.1
+    expose:
+      - "8002"

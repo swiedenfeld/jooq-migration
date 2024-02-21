@@ -73,5 +73,3 @@ CREATE TABLE IF NOT EXISTS checkout
     FOREIGN KEY (instance_id) REFERENCES instance (id),
     EXCLUDE USING gist (instance_id gist_uuid_ops WITH =, planned_checkout_period WITH &&)
 );
-
-

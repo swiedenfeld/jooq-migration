@@ -11,9 +11,15 @@ ext {
 }
 
 ext["jooqVersion"] = "3.19.4"
+ext["postgresqlVersion"] = "42.7.1"
+
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
+
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
     sourceSets.getByName("main").java.srcDir("build/generated-sources/jooq/demo")
     sourceSets.getByName("main").java.srcDir("build/generated-sources/jooq/staging")
     sourceSets.getByName("main").java.srcDir("build/generated-sources/jooq/extensions")
@@ -29,10 +35,10 @@ dependencies {
     implementation("org.jooq:jooq-postgres-extensions:${property("jooqVersion")}")
     implementation("org.jooq:jool:0.9.15")
 
-    jooqCodegen("org.postgresql:postgresql:42.5.4")
+    jooqCodegen("org.postgresql:postgresql:${property("postgresqlVersion")}")
 
     liquibaseRuntime("org.liquibase:liquibase-core:4.26.0")
-    liquibaseRuntime("org.postgresql:postgresql:42.7.1")
+    liquibaseRuntime("org.postgresql:postgresql:${property("postgresqlVersion")}")
     liquibaseRuntime("info.picocli:picocli:4.7.3")
 
 }

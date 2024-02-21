@@ -21,7 +21,3 @@
 * [ ] Write README
 * [ ] Upload code to github
 * [ ] Upload blog post to WP
-
-
-
-

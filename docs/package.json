@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@antora/lunr-extension": "^1.0.0-alpha.8",
+    "@antora/site-generator": "^3.1.7",
+    "asciidoctor-kroki": "^0.18.1"
+  }
+}

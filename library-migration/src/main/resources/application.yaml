@@ -8,5 +8,3 @@ spring:
     url: jdbc:postgresql://localhost:5432/jooq_demo
     username: jooq_demo_admin
     password: jooq_demo_admin
-
-

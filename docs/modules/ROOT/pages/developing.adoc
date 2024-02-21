@@ -1,0 +1,67 @@
+= Start Developing
+
+The project is a multi-project gradle project.
+It currently consists of the following sub-projects:
+
+db::
+The database schema and liquibase migration scripts.
+Contains the jooq generator to generate the jooq classes.
+
+docs::
+The documentation for the project.
+The documentation is using the antora site generator.
+
+jooq-migration::
+The general, context-free jooq based migration script generation, like dropping and creating of indexes and constraints
+
+library-migration::
+The specific table migration scripts.
+Depends on jooq-migration and db.
+
+Beside this, we have a compose.yaml that sets up a local database.
+The specific docker file is kept in the docker-compose/postgres folder.
+
+The project also supports the pre-commit.com[Pre-Commit] framework.
+You should install the pre-commit framework and run `pre-commit install` in the root of the project.
+
+In the following sections, we will describe the different project-features in more detail.
+
+== Database
+We currently setup a single database with multiple schemas and users.
+The main schema is called `jooq_demo` and two users: `jooq_demo_admin`and `jooq_demo_user`.
+The admin user has more rights than the user.
+The admin user should be used for the migration scripts, while the user should be used for the application.
+
+For demo purposes, we also have a `staging` schema, that is used as the staging environment.
+
+The following extra schemas exist:
+
+extensions::
+Used as a schema for deploying extensions, like uuid-ossp and others.
+Only specific extensions, like faker, get their own schemas, because the extension provides a lot of functions and types.
+
+=== Extensions
+
+* uuid-ossp: the default uuid generator
+* pg_uuidv7: a uuid v7 generator
+* https://www.postgresql.org/docs/current/btree-gist.html[btree_gist] used for exclusion constraints
+* fuzzystrmatch and pg_trgm for fuzzy string matching
+* pg_stat_statements: for statement statistics
+* hstore: a key-value store
+
+== Docker
+
+* Profiles
+
+== Pre-Commit Framework
+=== Secrets Detection
+
+=== Whitelisting /
+
+* inline
+* secrets baseline
+
+== Gradle
+
+* buildSrc
+* buildCache

@@ -1,0 +1,30 @@
+site:
+  title: Jooq Migration Demo
+  start_page: jooq-migration::index.adoc
+
+content:
+  sources:
+    - url: ..
+      start_path: docs
+      branches: main
+      version: true
+
+output:
+  dir: ./build/site/docs
+
+antora:
+  extensions:
+    - require: '@antora/lunr-extension'
+      index_latest_only: true
+
+asciidoc:
+  extensions:
+    - asciidoctor-kroki
+
+  attributes:
+    kroki-server-url: https://localhost:8000
+    kroki-fetch-diagram: true
+
+ui:
+  bundle:
+    url: https://github.com/opitzconsulting/oc-antora-ui/releases/download/v3.0.1/ui-bundle.zip
