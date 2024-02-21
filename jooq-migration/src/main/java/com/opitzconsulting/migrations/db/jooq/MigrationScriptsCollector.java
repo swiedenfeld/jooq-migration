@@ -38,6 +38,11 @@ public class MigrationScriptsCollector {
         }
     }
 
+    public String[] getScripts() {
+        scriptNames.sort(String::compareTo);
+        return scriptNames.stream().map(this::getScriptPath).toArray(String[]::new);
+    }
+
     @NotNull
     private String getScriptPath(String fileName) {
         return scriptPath + FileSystems.getDefault().getSeparator() + fileName;

@@ -1,4 +1,4 @@
-package com.opitzconsulting.cattlecrew.jooqmigration;
+package com.opitzconsulting.cattlecrew.jooqmigration.generator;
 
 import static com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.Tables.BOOK;
 import static com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.Tables.CHECKOUT;
@@ -18,9 +18,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 import org.jooq.InsertReturningStep;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.SpringApplication;
+import org.springframework.shell.command.annotation.Command;
+import org.springframework.stereotype.Component;
 
-@SpringBootApplication
+@Component
+@Command
 public class DataGenerator {
     public static final int MIN_NUMBER_OF_BOOKS = 10000;
     public static final int MAX_NUMBER_OF_BOOKS = 50000;
@@ -36,6 +39,7 @@ public class DataGenerator {
     private int checkoutSequence = 0;
 
     public static void main(String[] args) {
+        SpringApplication.run(DataGenerator.class, args);
         DataGenerator stagingDataGeneratorTest = new DataGenerator();
         stagingDataGeneratorTest.generateData();
     }
@@ -69,6 +73,7 @@ public class DataGenerator {
         return convertToLocalDate(faker.date().between(actualReturnAfter, actualReturnBefore));
     }
 
+    @Command(command = "generateData")
     private void generateData() {
         Faker faker = new Faker(
                 Locale.GERMANY,

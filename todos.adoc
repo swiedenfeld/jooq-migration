@@ -14,10 +14,10 @@
 * [x] Setup Migration framework (using existing work)
 * [x] Create Migration Script
 ** [x] Update StatementCollector to record script names and print a "migration script" at the end
-* [ ] Write Blog Post showcasing
-** [ ] Index detection / FK detection and automatic inclusion in migration scripts
-** [ ] Column renames and compile time detection
-** [ ] Conclusion
+* [x] Write Blog Post showcasing
+** [x] Index detection / FK detection and automatic inclusion in migration scripts
+** [x] Column renames and compile time detection
+** [x] Conclusion
 * [ ] Write README
 * [ ] Upload code to github
 * [ ] Upload blog post to WP

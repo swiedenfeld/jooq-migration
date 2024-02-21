@@ -1,4 +1,5 @@
 = Developer-centric SQL Migrations
+:toc:
 
 Bei vielen Arten von Migrationsprojekten steht man vor der Herausforderung der Datenmigration.
 In diesem Artikel wird gezeigt, wie jOOQ dabei unterstützen kann, sowohl Änderungen am Source Schema als auch am Target Schema zu erkennen, (gewisse) Fehler durch Automatisierung zu vermeiden und Änderungen aufgrund von Compile-Time-Safety zu verifizieren.
@@ -13,7 +14,8 @@ Die Datenbank wurde mittels ora2pg in ein PostgreSQL "Staging" Schema migriert.
 Das Schema halten wir in der gleichen Datenbank, wie das spätere Zielschema.
 
 Das haben wir gemacht, damit wir einfache SQL Abfragen zur Migration nutzen können.
-Es kann aber auch sinnvoll sein, das Staging Schema in einer eigenen Datenbank, bzw. Datenbankcluster zu halten, um die Datenbanken zu entkoppeln.
+Es kann aber auch sinnvoll sein, das Staging Schema in einer eigenen Datenbank, bzw.
+Datenbankcluster zu halten, um die Datenbanken zu entkoppeln.
 Dann kann mann Postgres Foreign Data Wrapper nutzen, um genauso einfach auf die Daten zuzugreifen.
 Dies ist sinnvoll, da bei vielen Cloudanbietern, der einmal zugewiesene Speicher nicht wieder einfach freigegeben werden kann.
 Liegt das Staging Schema in einem eigenen Datnbankcluster, so kann der gesamte Server einfach gelöscht werden.
@@ -33,7 +35,8 @@ Migrationsskripte sind aber von den Liquibase oder Flyway Skripten getrennt.
 
 == Was gehört zu einer performanten Migration?
 
-Es gibt verschiedene Arten von Migrationen. In der Regel ist es sinnvoll bei IT Systemen eine inkrementelle Migrationsstrategie zu verfolgen.
+Es gibt verschiedene Arten von Migrationen.
+In der Regel ist es sinnvoll bei IT Systemen eine inkrementelle Migrationsstrategie zu verfolgen.
 Das kann trotzdem bedeuten, dass Teile des IT-Systems jeweils in einem Schritt migriert werden (Big Bang).
 Dann ist häufig eine performante Migration der Daten wichtig.
 
@@ -62,6 +65,7 @@ Dabei sind insbesondere die Änderungen an den Zieltabellen interessant.
 * Neue Constraints (inklusive Foreign Keys)
 * Neue Triggers
 * Umbenennungen von Spalten
+* Neue Not Null Spalten
 
 Es ist wichtig, dass diese Änderungen entweder automatisch erkannt und berücksichtigt werden oder vor Ausführung der Skripte auffallen.
 Da die Laufzeiten für die Migrationen sehr lang sein können (Stunden bis Tage), ist es wichtig, dass die Migrationsskripte möglichst fehlerfrei sind.
@@ -69,34 +73,144 @@ Ansonsten ärgert man sich über einfache Fehler, die früher hätten erkannt we
 
 == Wie kann jOOQ helfen?
 
+jOOQ generiert aus einem Datenbankschema Klassenmodell.
+Dies beinhaltet Informationen über die gängigen Datenbankobjekte wie Tabellen, Spalten, Indizes, Constraints, Triggers und Foreign Keys.
+Mittels dieses Klassenmodells kann man dann einfach alle Indizes oder Constraints einer Tabelle entfernen oder neu erzeugen.
+Wenn wir dabei alle Tabellen mittels eines https://en.wikipedia.org/wiki/Topological_sorting[topologischen Sortieralgorithmus] sortieren, dann können wir die Tabellen in der richtigen Reihenfolge behandeln.
+Dies gilt für diesen Blog Post zumindest solange der "Tabellengraph" keine Zyklen enthält.
+Damit vergessen wir keine Objekte zu löschen oder zu erzeugen, die im Rahmen der Weiterentwicklung noch entstehen oder gelöscht werden.
+Statt die Änderungen direkt anzuwenden, können wir uns das SQL ausgeben lassen und einsammeln.
+Im Beispiel gibt es aktuell keinen Schalter, die Skripte auch direkt gegen die Datenbank auszuführen.
+Generell sollten die Aktionen nicht vom "Entwicklerlaptop" ausgeführt werden, sondern von einem anderen System.
+Wenn man die Migration manuell startet, sollte man darauf achten, dass dies unter einem terminal multiplexer wie tmux oder screen geschieht, damit die Verbindung zur Datenbank nicht abbricht.
+Die Migrationsdauer hängt dabei stark von der Größe der Datenbank ab.
+Selbst für einige kleine Datenbanken mit < 250 Mio Einträgen und mehreren Tabellen kann die Migration mehrere Stunden dauern.
+Bei größeren Migrationen ist sicherlich nochmal eine gesonderte Betrachtung notwendig, um Laufzeiten zu optimieren.
+
 == Das Beispielprojekt
+
+TODO:
+Das Beispielprojekt ist auf GitHub verfügbar.
 
 === Datenbank aufsetzen
 
+Die Postgres Datenbank kann mittels Docker Compose aufgesetzt werden.
+
+[source,bash]
+----
+docker compose up -d
+----
+
+Verbinden kann man sich mittels des Nutzers jooq_demo_admin und dem Passwort jooq_demo_admin.
+Dieser Nutzer hat die notwendigen Rechte auf der Datenbank und den Schemas.
+Es gibt die folgenden Schemas:
+
+jooq_demo::
+Das Zielschema, welches später von der Anwendung genutzt werden soll
+staging::
+Das Staging Schema, welches aus der Oracle Datenbank migriert wurde
+extensions::
+Das Schema, in dem die Erweiterungen für die Datenbank liegen (z.B. uuid-ossp), welche nicht zu viele eigene Funktionen / Objekte bereitstellen
+
+Wenn die Datenbank läuft, dann können die Tabellen mittels
+
+[source,bash]
+----
+./gradlew :db:liquibaseUpdate
+----
+
+erzeugt werden.
+Die Ausführung von liquibaseUpdate triggert auch die Erzeugung der jOOQ Klassen.
+
+Es wird eine minimale Web Oberfläche mittels https://www.adminer.org[Adminer] bereitgestellt, die unter http://localhost:8080 erreichbar ist.
+
+|===
+| Attribut | Wert
+| Datenbank System | PostgreSQL
+| Server | postgres
+| Benutzer | jooq_demo_admin
+| Passwort | jooq_demo_admin
+| Datenbank | jooq_demo
+|===
+
+=== Spring Shell bauen
+
+Die Anwendung, welche die Testdaten generiert, Migrationsskripte erstellt und ausführt, ist eine Spring Shell Anwendung.
+Sie wird erstellt mittels
+
+[source,bash]
+----
+./gradlew build
+----
+
+das gesamte Projekt baut.
+
 === Testdaten erzeugen
+
+[source,bash]
+----
+java -jar library-migration/build/libs/library-migration-0.0.1-SNAPSHOT.jar generateData
+----
 
 === Migrationsskripte erstellen
 
+[source,bash]
+----
+java -jar library-migration/build/libs/library-migration-0.0.1-SNAPSHOT.jar generateScripts
+----
+
+Die Migrationsskripte werden im `scripts` Verzeichnis des Sub-Projekts `library-migration` abgelegt.
+Es wird ein Skript `0000_run_all.sql` erzeugt, welches mittels `psql` ausgeführt werden kann.
+
 === Migrationsskripte ausführen
+
+[source,bash]
+----
+java -jar library-migration/build/libs/library-migration-0.0.1-SNAPSHOT.jar applyScripts
+----
 
 === Zusätzlichen Index erstellen
 
-=== Migrationsskripte erneuet erstellen
+Wir wollen einen zusätzlichen Index auf der Tabelle `book` erstellen.
+Dieser sollte dann auch automatisch in den Migrationsskripten gedroppt und neu erstellt werden.
+
+[source,bash]
+----
+./gradlew :db:update -PliquibaseExtraArgs="contexts=demo-1"
+./gradlew clean build
+java -jar library-migration/build/libs/library-migration-0.0.1-SNAPSHOT.jar generateScripts
+----
+
+Das Skript `0010_disable_index.sql` enthält jetzt den Befehl zum Löschen des Indexes und entsprechend `2060_enable_indexe.sql` enthält den Befehl zum Erstellen des Indexes.
+
+Es gibt also keine Indexe, die man vergessen kann zu löschen und zu erstellen.
+
+Das ist schon mal sehr hilfreich.
+Wir schauen uns jetzt einmal an, was passiert, wenn wir eine Spalte umbenennen.
 
 === Spalte umbenennen
 
-== Ausblick
+[source,bash]
+----
+./gradlew :db:update -PliquibaseExtraArgs="contexts=demo-2"
+./gradlew --no-build-cache clean build
+----
 
-* pg anonymizer
+Der Build schlägt fehl, da es die Spalte mit dem alten Namen nicht mehr gibt.
+Da es nur ein Demo ist, können wir die Spalte wieder umbenennen und den Build wiederholen.
 
+[source,bash]
+----
+./gradlew :db:rollbackCount -PliquibaseCommandValue=1 -PliquibaseExtraArgs="contexts=demo-2"
+----
 
+Wer noch mehr ausprobieren möchte, der kann das natürlich auch einfach mittels SQL auf der Datenbank machen.
 
+== Was nicht funktioniert
 
+Wenn man eine neue Not Null Spalte hinzufügt, dann wird das nicht automatisch erkannt, dass in den Abfragen kein Wert für die Spalte bereitgestellt wird.
 
+== Fazit
 
-
-
-
-
-
+Auch wenn nicht Änderungen erkannt werden, ist die Nutzung von jOOQ für die Erstellung von Migrationsskripten sehr hilfreich und kann einige Fehlerquellen adressieren, die bei gleichzeitiger Entwicklungstätigkeit auftreten können.
 

@@ -1,30 +1,36 @@
+import org.jooq.impl.DSL.set
+import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
     java
     id("jooq-conventions")
-    id("org.springframework.boot") version "3.2.2"
+    id("org.springframework.boot") version "3.2.1"
     id("io.spring.dependency-management") version "1.1.4"
     id("com.diffplug.spotless") version "6.25.0"
-    id("com.avast.gradle.docker-compose") version "0.17.6"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
 }
 
 group = "com.opitzconsulting.cattlecrew"
 version = "0.0.1-SNAPSHOT"
 
-repositories {
-    mavenCentral()
+extra["springShellVersion"] = "3.2.1"
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.shell:spring-shell-dependencies:${property("springShellVersion")}")
+    }
 }
 
 dependencies {
     implementation(project(":jooq-migration"))
     implementation(project(":db"))
     implementation("org.springframework.boot:spring-boot-starter-jooq")
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.shell:spring-shell-starter")
     implementation("org.liquibase:liquibase-core")
     implementation("net.datafaker:datafaker:2.1.0")
     implementation("org.jetbrains:annotations:24.1.0")
 
-    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
@@ -40,59 +46,6 @@ spotless {
     kotlin {
         // by default the target is every ".kt" and ".kts` file in the java sourcesets
         ktfmt()
-    }
-}
-
-jooq {
-    executions {
-        create("jooq_demo") {
-            configuration {
-                generator {
-                    database {
-                        inputSchema = "jooq_demo"
-                    }
-                    generate {
-                        isIndexes = true
-                    }
-                    target {
-                        packageName = "com.opitzconsulting.cattlecrew.jooqmigration.jooq.demo"
-                    }
-                }
-            }
-        }
-        create("staging") {
-            configuration {
-                generator {
-                    database {
-                        inputSchema = "staging"
-                    }
-                    generate {
-                        isIndexes = true
-                    }
-                    target {
-                        packageName = "com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging"
-                    }
-                }
-            }
-        }
-        create("extensions") {
-            configuration {
-                generator {
-                    database {
-                        inputSchema = "extensions"
-                    }
-                    generate {
-                        isIndexes = false
-                        isRoutines = true
-                        isTables = false
-
-                    }
-                    target {
-                        packageName = "com.opitzconsulting.cattlecrew.jooqmigration.jooq.extensions"
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -114,13 +67,19 @@ tasks.withType<JavaCompile> {
     dependsOn("spotlessApply")
 }
 
-
-dockerCompose {
-    waitForTcpPorts = true
-    useComposeFiles = listOf("compose.yml")
-}
-
 tasks.withType<Test> {
     useJUnitPlatform()
     maxHeapSize = "256m"
+}
+
+tasks.create("generateFakeData", BootRun::class) {
+    group = "build"
+    description = "Generates data for the database"
+    mainClass.set("com.opitzconsulting.cattlecrew.jooqmigration.DataGenerator")
+}
+
+tasks.create("generateMigrationScripts", BootRun::class) {
+    group = "build"
+    description = "Generates migration scripts"
+    mainClass.set("com.opitzconsulting.cattlecrew.jooqmigration.migration.LibraryMigration")
 }

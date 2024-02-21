@@ -10,11 +10,13 @@ ext {
     set("jdbcUrl", "jdbc:postgresql://localhost:5432/jooq_demo")
 }
 
+ext["jooqVersion"] = "3.19.4"
+
 java {
     sourceCompatibility = JavaVersion.VERSION_21
-    sourceSets.getByName("main").java.srcDir("build/generated-src/jooq/demo")
-    sourceSets.getByName("main").java.srcDir("build/generated-src/jooq/staging")
-    sourceSets.getByName("main").java.srcDir("build/generated-src/jooq/extensions")
+    sourceSets.getByName("main").java.srcDir("build/generated-sources/jooq/demo")
+    sourceSets.getByName("main").java.srcDir("build/generated-sources/jooq/staging")
+    sourceSets.getByName("main").java.srcDir("build/generated-sources/jooq/extensions")
 }
 
 repositories {
@@ -22,9 +24,9 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jooq:jooq:3.19.3")
-    implementation("org.jooq:jooq-meta:3.19.3")
-    implementation("org.jooq:jooq-postgres-extensions:3.19.3")
+    implementation("org.jooq:jooq:${property("jooqVersion")}")
+    implementation("org.jooq:jooq-meta:${property("jooqVersion")}")
+    implementation("org.jooq:jooq-postgres-extensions:${property("jooqVersion")}")
     implementation("org.jooq:jool:0.9.15")
 
     jooqCodegen("org.postgresql:postgresql:42.5.4")
@@ -48,10 +50,6 @@ jooq {
                 name = "org.jooq.meta.postgres.PostgresDatabase"
                 includes = ".*"
                 excludes = "databasechangelog|databasechangeloglock"
-            }
-            generate {
-                isNonnullAnnotation = true
-                isNullableAnnotation = true
             }
         }
 

@@ -2,6 +2,10 @@ plugins {
     id("jooq-conventions")
 }
 
+dependencies {
+    implementation("org.jetbrains:annotations:24.0.0")
+}
+
 jooq {
     executions {
         create("staging") {
@@ -15,12 +19,12 @@ jooq {
                     }
                     target {
                         packageName = "com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging"
-                        directory = "build/generated-src/jooq/staging"
+                        directory = "build/generated-sources/jooq/staging"
                     }
                 }
             }
         }
-        create("jooq_demo") {
+        create("demo") {
             configuration {
                 generator {
                     database {
@@ -28,10 +32,14 @@ jooq {
                     }
                     generate {
                         isIndexes = true
+                        isNonnullAnnotation = true
+                        nonnullAnnotationType = "org.jetbrains.annotations.NotNull"
+                        isNullableAnnotation = true
+                        nullableAnnotationType = "org.jetbrains.annotations.Nullable"
                     }
                     target {
                         packageName = "com.opitzconsulting.cattlecrew.jooqmigration.jooq.demo"
-                        directory = "build/generated-src/jooq/demo"
+                        directory = "build/generated-sources/jooq/demo"
                     }
                 }
             }
@@ -46,12 +54,13 @@ jooq {
                     generate {
                         isIndexes = true
                         isRoutines = true
-                        isTables = true
+                        isTables = false
+
                     }
                     target {
                         withClean(false)
                         packageName = "com.opitzconsulting.cattlecrew.jooqmigration.jooq.extensions"
-                        directory = "build/generated-src/jooq/extensions"
+                        directory = "build/generated-sources/jooq/extensions"
                     }
                 }
             }
@@ -84,10 +93,3 @@ tasks.named("update") {
 tasks.named("compileJava") {
     dependsOn("jooqCodegen")
 }
-
-/**
-tasks.named("jooqCodegenJooq_demo") {
-    outputs.dir(file("build/generated-src/jooq/demo"))
-    inputs.dir(file("src/main/resources/db/changelog")).withPathSensitivity(PathSensitivity.RELATIVE)
-}
- */

@@ -4,6 +4,7 @@ import static com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.tables.T
 import static com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.tables.TmpMappingMemberIdUuid.TMP_MAPPING_MEMBER_ID_UUID;
 import static org.jooq.impl.DSL.*;
 
+import com.opitzconsulting.cattlecrew.jooqmigration.jooq.demo.JooqDemo;
 import com.opitzconsulting.cattlecrew.jooqmigration.jooq.demo.tables.Instance;
 import com.opitzconsulting.cattlecrew.jooqmigration.jooq.extensions.Routines;
 import com.opitzconsulting.cattlecrew.jooqmigration.jooq.staging.tables.Book;
@@ -13,13 +14,31 @@ import com.opitzconsulting.migrations.db.jooq.FullMigrationSupport;
 import com.opitzconsulting.migrations.db.jooq.MigrationScriptsCollector;
 import com.opitzconsulting.migrations.db.jooq.StatementCollector;
 import java.io.File;
+import java.sql.Connection;
+import java.sql.SQLException;
+import javax.sql.DataSource;
+import org.apache.commons.io.FileUtils;
 import org.jooq.DSLContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.PathResource;
+import org.springframework.core.io.support.EncodedResource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.shell.command.annotation.Command;
 import org.springframework.stereotype.Component;
 
 @Component
+@Command
 public class LibraryMigration extends FullMigrationSupport {
-    public LibraryMigration(DSLContext dsl, String scriptsPath) {
+    private final DataSource dataSource;
+
+    @Autowired
+    public LibraryMigration(
+            DSLContext dsl,
+            @Value("${jooq-migration.scripts-path:scripts}") String scriptsPath,
+            DataSource dataSource) {
         super(dsl, new MigrationScriptsCollector(new File(scriptsPath)));
+        this.dataSource = dataSource;
     }
 
     @Override
@@ -28,6 +47,29 @@ public class LibraryMigration extends FullMigrationSupport {
         mapMembers(migrationScriptsCollector.newScript("1020_members.sql"));
         mapBooks(migrationScriptsCollector.newScript("1030_books.sql"));
         mapCheckouts(migrationScriptsCollector.newScript("1040_checkout.sql"));
+    }
+
+    @Command(command = "generateScripts", description = "Generates the migration scripts")
+    public void migrate() throws Exception {
+        super.migrate(JooqDemo.JOOQ_DEMO.getTables());
+    }
+
+    @Command(command = "applyScripts", description = "Applies the migration scripts")
+    public void applyScripts() {
+        String[] files = FileUtils.listFiles(new File("scripts"), null, false).stream()
+                .filter(file -> file.length() > 0)
+                .filter(file -> !file.getName().startsWith("0000"))
+                .map(File::getAbsolutePath)
+                .toArray(String[]::new);
+
+        try (Connection connection = dataSource.getConnection()) {
+            for (String file : files) {
+                System.out.println("Applying " + file);
+                ScriptUtils.executeSqlScript(connection, new EncodedResource(new PathResource(file)));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void mapCheckouts(StatementCollector statementCollector) throws Exception {
@@ -140,7 +182,7 @@ public class LibraryMigration extends FullMigrationSupport {
                     .where(memberTarget.EMAIL.in(dsl.select(memberTarget.EMAIL)
                             .from(target)
                             .groupBy(target.EMAIL)
-                            .having(count().gt(1))))
+                            .having(count().gt(inline(1)))))
                     .getSQL());
         }
     }
