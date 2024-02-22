@@ -7,6 +7,22 @@ dependencies {
 }
 
 jooq {
+    configuration {
+        jdbc {
+            driver = "org.postgresql.Driver"
+            url = project.ext["jdbcUrl"].toString()
+            user = project.ext["jdbcUsername"].toString()
+            password = project.ext["jdbcPassword"].toString()
+        }
+        generator {
+            name = "org.jooq.codegen.DefaultGenerator"
+            database {
+                name = "org.jooq.meta.postgres.PostgresDatabase"
+                includes = ".*"
+                excludes = "databasechangelog|databasechangeloglock"
+            }
+        }
+    }
     executions {
         create("staging") {
             configuration {

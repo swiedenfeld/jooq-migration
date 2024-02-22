@@ -1,0 +1,31 @@
+= The JOOQ Demo Code
+Richard Attermeyer <richard.attermeyer@opitz-consulting.com>
+:toc:
+:toc-title: Table of Contents
+
+== Introduction
+This project contains the code for the JOOQ demo.
+The blog post is available at https://thecattlecrew.net[The Cattle Crew Blog] (in German).
+
+You need docker and docker-compose installed for this project.
+
+The documentation can be generated as an antora static site using the following command:
+
+[source,shell]
+----
+docker-compose up -d <1>
+./gradlew :db:update <2>
+./gradlew :db:jooqCodegen <3>
+./gradlew build <4>
+docker compose --profile=doc up -d
+./gradlew :db:antora
+----
+
+You can then open the site using the file `docs/build/site/docs/index.html`.
+
+include::docs/modules/ROOT/pages/developing.adoc[leveloffset=+1]
+
+== Blog Post
+NOTE: The following text is only available in German.
+
+include::docs/modules/ROOT/pages/jooq-migration.adoc[leveloffset=+2]

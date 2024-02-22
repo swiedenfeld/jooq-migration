@@ -42,22 +42,3 @@ dependencies {
     liquibaseRuntime("info.picocli:picocli:4.7.3")
 
 }
-jooq {
-    configuration {
-        jdbc {
-            driver = "org.postgresql.Driver"
-            url = project.ext["jdbcUrl"].toString()
-            user = project.ext["jdbcUsername"].toString()
-            password = project.ext["jdbcPassword"].toString()
-        }
-        generator {
-            name = "org.jooq.codegen.DefaultGenerator"
-            database {
-                name = "org.jooq.meta.postgres.PostgresDatabase"
-                includes = ".*"
-                excludes = "databasechangelog|databasechangeloglock"
-            }
-        }
-
-    }
-}

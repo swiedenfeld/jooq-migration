@@ -42,16 +42,28 @@ Only specific extensions, like faker, get their own schemas, because the extensi
 
 === Extensions
 
+Several postgres extensions are installed, but currently only uuid and btree_gist are used.
+
 * uuid-ossp: the default uuid generator
 * pg_uuidv7: a uuid v7 generator
 * https://www.postgresql.org/docs/current/btree-gist.html[btree_gist] used for exclusion constraints
 * fuzzystrmatch and pg_trgm for fuzzy string matching
 * pg_stat_statements: for statement statistics
 * hstore: a key-value store
+* pgvector
+* postgresql_anonymizer
+
+See the `Dockerfile` and the `initdb.d` scripts.
 
 == Docker
 
-* Profiles
+The docker compose file defines currently two sets of services:
+=== no-profile (default)
+
+* Postgres
+* Adminer
+
+And the `doc` profile, which adds kroki.
 
 == Pre-Commit Framework
 === Secrets Detection
