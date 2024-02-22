@@ -6,7 +6,6 @@ plugins {
     id("jooq-conventions")
     id("org.springframework.boot") version "3.2.1"
     id("io.spring.dependency-management") version "1.1.4"
-    id("com.diffplug.spotless") version "6.25.0"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
 }
 
@@ -34,19 +33,6 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql:${property("postgresqlVersion")}")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
-}
-
-spotless {
-    encoding("UTF-8")
-    java {
-        toggleOffOn()
-        targetExclude("build/generated/**")
-        palantirJavaFormat()
-    }
-    kotlin {
-        // by default the target is every ".kt" and ".kts` file in the java sourcesets
-        ktfmt()
-    }
 }
 
 tasks.asciidoctor {

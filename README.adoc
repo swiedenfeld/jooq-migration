@@ -11,17 +11,26 @@ You need docker and docker-compose installed for this project.
 
 The documentation can be generated as an antora static site using the following command:
 
+.Running all relevant commands
 [source,shell]
 ----
-docker-compose up -d <1>
-./gradlew :db:update <2>
-./gradlew :db:jooqCodegen <3>
-./gradlew build <4>
-docker compose --profile=doc up -d
-./gradlew :db:antora
+pre-commit install <1>
+docker-compose up -d <2>
+./gradlew :db:update <3>
+./gradlew :db:jooqCodegen <4>
+./gradlew build <5>
+docker compose --profile=doc up -d <6>
+./gradlew :db:antora <7>
 ----
+<1> Install the pre-commit hooks (if you have https://pre-commit.com[pre-commit] installed)
+<2> Start the database and the adminer
+<3> Create tables using the liquibase scripts
+<4> Generate the JOOQ Klasses from the Database
+<5> Build the project
+<6> Create the antora site
 
 You can then open the site using the file `docs/build/site/docs/index.html`.
+Running the data generator etc. is documented in the blog post.
 
 include::docs/modules/ROOT/pages/developing.adoc[leveloffset=+1]
 

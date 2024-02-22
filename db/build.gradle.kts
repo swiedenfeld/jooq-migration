@@ -109,3 +109,7 @@ tasks.named("update") {
 tasks.named("compileJava") {
     dependsOn("jooqCodegen")
 }
+
+tasks.named("spotlessJava") {
+    mustRunAfter("jooqCodegenDemo", "jooqCodegenStaging", "jooqCodegenExtensions")
+}

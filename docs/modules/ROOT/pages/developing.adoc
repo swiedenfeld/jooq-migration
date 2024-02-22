@@ -58,22 +58,44 @@ See the `Dockerfile` and the `initdb.d` scripts.
 == Docker
 
 The docker compose file defines currently two sets of services:
+
 === no-profile (default)
 
 * Postgres
 * Adminer
 
-And the `doc` profile, which adds kroki.
+=== doc profile
+And the `doc` profile, which adds kroki services (core and mermaid)
+The doc profile is required by the antora site.
 
 == Pre-Commit Framework
+
+We are using the pre-commit framework to apply some checks to the code before it is committed.
+
 === Secrets Detection
 
-=== Whitelisting /
+The project uses two different secrets detection tools:
 
-* inline
-* secrets baseline
+* https://github.com/gitleaks/gitleaks[gitleaks]
+* https://github.com/Yelp/detect-secrets[detect-secrets]
+
+We are currently have commited some secrets.
+
+WARNING: Do not do this in production!!!
+
+To prevent both tools not from reporting these credentials as false positives, we have created a baseline.
+For detect-secrets, the baseline is stored in the `.secrets.baseline` file and for gitleaks in the `.gitleaks.baseline.json`file.
+
+The tools document on their respective websites how to create these baselines.
 
 == Gradle
 
-* buildSrc
-* buildCache
+Gradle is used as the build tool for the project.
+For the type-safety, the build script is written in Kotlin.
+
+It defines a `jooq-convention` in the https://docs.gradle.org/current/userguide/sharing_build_logic_between_subprojects.html#sec:convention_plugins[buildSrc] folder.
+
+This defines a https://docs.gradle.org/current/userguide/toolchains.html[JavaToolchain] for the project and the jooq generator and uses JDK 21 as a default.
+
+
+* spotless

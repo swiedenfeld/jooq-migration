@@ -2,6 +2,7 @@ plugins {
     `java-library`
     id("org.jooq.jooq-codegen-gradle")
     id("org.liquibase.gradle")
+    id("com.diffplug.spotless")
 }
 
 ext {
@@ -41,4 +42,17 @@ dependencies {
     liquibaseRuntime("org.postgresql:postgresql:${property("postgresqlVersion")}")
     liquibaseRuntime("info.picocli:picocli:4.7.3")
 
+}
+
+spotless {
+    encoding("UTF-8")
+    java {
+        toggleOffOn("formatter:off", "formatter:on")  // same as intellij
+        targetExclude("build/generated/**", "build/generated-sources/**")
+        palantirJavaFormat()
+    }
+    kotlin {
+        // by default the target is every ".kt" and ".kts` file in the java sourcesets
+        ktfmt()
+    }
 }

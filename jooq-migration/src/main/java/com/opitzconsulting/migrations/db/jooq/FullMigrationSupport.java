@@ -1,9 +1,8 @@
 package com.opitzconsulting.migrations.db.jooq;
 
+import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.Table;
-
-import java.util.List;
 
 public abstract class FullMigrationSupport {
     protected final DSLContext dsl;
@@ -122,7 +121,7 @@ public abstract class FullMigrationSupport {
         try (statementCollector) {
             tables.forEach(table -> {
                 table.getIndexes().forEach(index -> {
-                    System.out.println("Dropping index " + index.getName() + " on table " + table.getName() );
+                    System.out.println("Dropping index " + index.getName() + " on table " + table.getName());
                     statementCollector.collect(dsl.dropIndexIfExists(index).getSQL());
                 });
             });
