@@ -89,8 +89,7 @@ Bei größeren Migrationen ist sicherlich nochmal eine gesonderte Betrachtung no
 
 == Das Beispielprojekt
 
-TODO:
-Das Beispielprojekt ist auf GitHub verfügbar.
+Das Beispielprojekt ist auf https://github.com/opitzconsulting/jooq-migration[GitHub] verfügbar.
 
 === Datenbank aufsetzen
 
