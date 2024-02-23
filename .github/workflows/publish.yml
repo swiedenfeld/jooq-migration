@@ -30,11 +30,11 @@ jobs:
     - name: Install Antora with the Antora Lunr Extension
       run: npm i antora @antora/lunr-extension
     - name: Generate Site
-      run: npx antora antora-playbook.yml
+      run: npx antora docs/antora-playbook.yml
     - name: Upload Artifacts
-      uses: actions/upload-pages-artifact@v3.0.1
+      uses: actions/upload-pages-artifact@v3
       with:
         path: build/site/docs
     - name: Deploy to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v4.0.4
+      uses: actions/deploy-pages@v4
