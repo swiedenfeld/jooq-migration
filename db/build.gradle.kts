@@ -48,6 +48,8 @@ jooq {
                     }
                     generate {
                         isIndexes = true
+                        isDefaultSchema = true
+
                         isNonnullAnnotation = true
                         nonnullAnnotationType = "org.jetbrains.annotations.NotNull"
                         isNullableAnnotation = true
@@ -56,6 +58,12 @@ jooq {
                     target {
                         packageName = "com.opitzconsulting.cattlecrew.jooqmigration.jooq.demo"
                         directory = "build/generated-sources/jooq/demo"
+                    }
+                    strategy {
+                        name = "org.jooq.codegen.DefaultGeneratorStrategy"
+                        matchers {
+                            indexes {  }
+                        }
                     }
                 }
             }

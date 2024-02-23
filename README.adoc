@@ -20,7 +20,7 @@ docker-compose up -d <2>
 ./gradlew :db:jooqCodegen <4>
 ./gradlew build <5>
 docker compose --profile=doc up -d <6>
-./gradlew :db:antora <7>
+./gradlew :doc:antora <7>
 ----
 <1> Install the pre-commit hooks (if you have https://pre-commit.com[pre-commit] installed)
 <2> Start the database and the adminer
