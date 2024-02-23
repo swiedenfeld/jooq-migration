@@ -32,12 +32,11 @@ jobs:
         cd docs
         npm install
         npm i antora
-    - name: Generate Site
-      run: npx antora generate antora-playbook.yml
+        npx antora generate antora-playbook.yml
     - name: Upload Artifacts
       uses: actions/upload-pages-artifact@v3
       with:
-        path: build/site/docs
+        path: docs/build/site/docs
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
