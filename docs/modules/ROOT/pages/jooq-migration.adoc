@@ -90,6 +90,7 @@ Bei größeren Migrationen ist sicherlich nochmal eine gesonderte Betrachtung no
 == Das Beispielprojekt
 
 Das Beispielprojekt ist auf https://github.com/opitzconsulting/jooq-migration[GitHub] verfügbar.
+Eine etwas ausführlichere Dokumentation findet sich auf den zugehörigen https://opitzconsulting.github.io/jooq-migration/jooq-migration/main/index.html[Github Pages].
 
 === Datenbank aufsetzen
 
@@ -115,13 +116,14 @@ Wenn die Datenbank läuft, dann können die Tabellen mittels
 
 [source,bash]
 ----
-./gradlew :db:liquibaseUpdate
+./gradlew :db:update
 ----
 
 erzeugt werden.
 Die Ausführung von liquibaseUpdate triggert auch die Erzeugung der jOOQ Klassen.
 
 Es wird eine minimale Web Oberfläche mittels https://www.adminer.org[Adminer] bereitgestellt, die unter http://localhost:8080 erreichbar ist.
+Wer sich darüber anmelden möchte, der kann die folgenden Daten verwenden:
 
 |===
 | Attribut | Wert
@@ -135,16 +137,17 @@ Es wird eine minimale Web Oberfläche mittels https://www.adminer.org[Adminer] b
 === Spring Shell bauen
 
 Die Anwendung, welche die Testdaten generiert, Migrationsskripte erstellt und ausführt, ist eine Spring Shell Anwendung.
-Sie wird erstellt mittels
 
+Ein Gradle build erzeugt die Anwendung.
 [source,bash]
 ----
 ./gradlew build
 ----
 
-das gesamte Projekt baut.
-
 === Testdaten erzeugen
+
+Jetzt benötigen wir Testdaten in der Staging Datenbank.
+Die Daten werden mittels http://datafaker.net[DataFaker] erzeugt und mittels jOOQ in die Datenbank geschrieben.
 
 [source,bash]
 ----
@@ -152,6 +155,8 @@ java -jar library-migration/build/libs/library-migration-0.0.1-SNAPSHOT.jar gene
 ----
 
 === Migrationsskripte erstellen
+
+Jetzt geht es darum, die eigentlichen Migrationsskripte erstellen zu lassen.
 
 [source,bash]
 ----
@@ -161,12 +166,84 @@ java -jar library-migration/build/libs/library-migration-0.0.1-SNAPSHOT.jar gene
 Die Migrationsskripte werden im `scripts` Verzeichnis des Sub-Projekts `library-migration` abgelegt.
 Es wird ein Skript `0000_run_all.sql` erzeugt, welches mittels `psql` ausgeführt werden kann.
 
+Dieser Schritt enthält die eigentliche Magie.
+
+Wenn wir jetzt einmal die Skripte anschauen, die erzeugt werden, so sehen wir folgende Liste:
+
+[source,bash]
+----
+0000_run_all.sql
+0010_disable_indexe.sql
+0020_drop_constraints.sql
+0030_unlog_tables.sql
+1010_create_mapping_tables.sql
+1020_members.sql
+1030_books.sql
+1040_checkout.sql
+2040_log_tables.sql
+2050_add_constraints.sql
+2060_enable_indexe.sql
+2070_analyze_tables.sql
+----
+
+Einige Dateien sind aktuell leer, wie disable_indexe und enable_indexe, da keine expliziten Indexe definiert sind.
+Wir erkennen aber alle Schritte wieder, die wir im Rahmen eines Builds durchführen würden.
+
+Wir brauchen aber nur die Skripte schreiben, welche die wirkliche Migration der Daten durchführen.
+
+.Book Mapping using a lookup table
+[source,java]
+----
+   var sql = dsl.insertInto(
+                            target,
+                            target.ID,
+                            target.INSTANCE_ID,
+                            target.MEMBER_ID,
+                            target.CHECKOUT_DATE,
+                            target.RETURN_DATE,
+                            target.ACTUAL_RETURN_DATE)
+                    .select(dsl.select(
+                                    Routines.uuidGenerateV7(),
+                                    instance.ID,
+                                    mappingMembers.UUID,
+                                    source.CHECKOUT_DATE,
+                                    source.RETURN_DATE,
+                                    source.ACTUAL_RETURN_DATE)
+                            .from(source)
+                            .join(mappingBooks)
+                            .on(source.ISBN13.eq(mappingBooks.ISBN13))
+                            .join(mappingMembers)
+                            .on(source.MEMBER_ID.eq(mappingMembers.MEMBER_ID))
+                            .join(instance)
+                            .on(instance.BOOK_ID.eq(mappingBooks.UUID)))
+                    .onConflictDoNothing()
+                    .getSQL();
+----
+
+Dieses Beispiel befindet sich in der Klasse `LibraryMigratio`, welche die Methode `migrateTables`  unserer `FullMigrationSupport` Oberklasse überschreibt.
+
+.Überschriebene Methode `migrateTables`
+[source,java]
+----
+  @Override
+    protected void migrateTables() throws Exception {
+        createBookMappingTables(migrationScriptsCollector.newScript("1010_create_mapping_tables.sql"));
+        mapMembers(migrationScriptsCollector.newScript("1020_members.sql"));
+        mapBooks(migrationScriptsCollector.newScript("1030_books.sql"));
+        mapCheckouts(migrationScriptsCollector.newScript("1040_checkout.sql"));
+    }
+----
+
 === Migrationsskripte ausführen
+
+Jetzt müssen die Daten mittels der Skripte migriert werden.
 
 [source,bash]
 ----
 java -jar library-migration/build/libs/library-migration-0.0.1-SNAPSHOT.jar applyScripts
 ----
+
+Das führt einfach die Skripte aus (mittels Springs ScriptUtils Klasse).
 
 === Zusätzlichen Index erstellen
 
@@ -176,7 +253,7 @@ Dieser sollte dann auch automatisch in den Migrationsskripten gedroppt und neu e
 [source,bash]
 ----
 ./gradlew :db:update -PliquibaseExtraArgs="contexts=demo-1"
-./gradlew clean build
+./gradlew --no-build-cache clean build
 java -jar library-migration/build/libs/library-migration-0.0.1-SNAPSHOT.jar generateScripts
 ----
 
@@ -185,9 +262,14 @@ Das Skript `0010_disable_index.sql` enthält jetzt den Befehl zum Löschen des I
 Es gibt also keine Indexe, die man vergessen kann zu löschen und zu erstellen.
 
 Das ist schon mal sehr hilfreich.
+Was hier passiert ist, dass an ein liquibase Update (mittels `./gradlew :db:update`) den Task `jooqCodegen` triggert.
+Damit wird das jOOQ Klassenmodell aktualisiert.
+
 Wir schauen uns jetzt einmal an, was passiert, wenn wir eine Spalte umbenennen.
 
 === Spalte umbenennen
+
+Wir nennen in der Tabelle `checkout`die Spalte `return_date` in `borrowed_until_date` um.
 
 [source,bash]
 ----
@@ -196,6 +278,14 @@ Wir schauen uns jetzt einmal an, was passiert, wenn wir eine Spalte umbenennen.
 ----
 
 Der Build schlägt fehl, da es die Spalte mit dem alten Namen nicht mehr gibt.
+
+.Fehlermeldung
+[source,bash]
+----
+/Users/rat/devel/playground/jooq-migration/library-migration/src/main/java/com/opitzconsulting/cattlecrew/jooqmigration/migration/LibraryMigration.java:90: Fehler: Symbol nicht gefunden
+                            target.RETURN_DATE,
+----
+
 Da es nur ein Demo ist, können wir die Spalte wieder umbenennen und den Build wiederholen.
 
 [source,bash]
@@ -208,7 +298,12 @@ Wer noch mehr ausprobieren möchte, der kann das natürlich auch einfach mittels
 == Was nicht funktioniert
 
 Wenn man eine neue Not Null Spalte hinzufügt, dann wird das nicht automatisch erkannt, dass in den Abfragen kein Wert für die Spalte bereitgestellt wird.
+Wer die Datenbankdefinition sich genau angesehen hat, wird feststellen, dass ein Postgres spezifisches Exclusion constraint auf der Checkout Tabelle definiert ist.
+Dieses wurde vom Meta-Modell nicht erkannt und auch nicht in den Skripten berücksichtigt.
+Daher ist es immer noch wichtig, sich die generierten Skripte anzuschauen und ggf. zu prüfen und zu ergänzen.
+Gleiches gilt auch, wenn zyklische Abhängigkeiten zwischen Tabellen bestehen.
 
 == Fazit
 
-Auch wenn nicht Änderungen erkannt werden, ist die Nutzung von jOOQ für die Erstellung von Migrationsskripten sehr hilfreich und kann einige Fehlerquellen adressieren, die bei gleichzeitiger Entwicklungstätigkeit auftreten können.
+Auch wenn nicht Änderungen erkannt werden, ist die Nutzung von jOOQ für die Erstellung von Migrationsskripten sehr hilfreich und kann einige Fehlerquellen adressieren, die bei gleichzeitiger Entwicklungstätigkeit auftreten können, wenn also das Zielschema nicht eingefroren ist.
+Notwendige Ergänzungen können im Code oder in den generierten Skripten vorgenommen werden.

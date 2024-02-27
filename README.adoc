@@ -39,7 +39,3 @@ include::docs/modules/ROOT/pages/developing.adoc[leveloffset=+1]
 NOTE: The following text is only available in German.
 
 include::docs/modules/ROOT/pages/jooq-migration.adoc[leveloffset=+2]
-
-=== Documentation
-
-The complete documentation is available at https://opitzconsulting.github.io/jooq-migration/jooq-migration/main/index.html[GitHub Pages].

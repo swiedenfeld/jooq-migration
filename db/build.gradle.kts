@@ -61,9 +61,6 @@ jooq {
                     }
                     strategy {
                         name = "org.jooq.codegen.DefaultGeneratorStrategy"
-                        matchers {
-                            indexes {  }
-                        }
                     }
                 }
             }

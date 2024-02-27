@@ -1,1 +1,7 @@
 = JOOQ Migration Demo
+
+This demo shows how to use JOOQ to perform database migrations.
+It is the sample code to the blog post that is also available on our company Blog https://thecattlecrew.net[https://thecattlecrew.net]
+
+Use the navigation to read the individual pages.
+The blog post is currently only available in German.

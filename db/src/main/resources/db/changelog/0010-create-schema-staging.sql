@@ -12,7 +12,7 @@ ALTER DEFAULT PRIVILEGES FOR USER jooq_demo_admin IN SCHEMA staging GRANT select
 ALTER DEFAULT PRIVILEGES FOR user jooq_demo_admin IN SCHEMA staging GRANT execute ON FUNCTIONS TO jooq_demo_user;
 
 -- changeset rat:0010-2
-CREATE TABLE staging.book
+CREATE TABLE IF NOT EXISTS staging.book
 (
     isbn13    VARCHAR(17)  NOT NULL,
     publisher VARCHAR(100) NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE staging.book
 );
 
 -- changeset rat:0010-3
-CREATE TABLE staging.member
+CREATE TABLE IF NOT EXISTS staging.member
 (
     id            SERIAL       NOT NULL,
     first_name    VARCHAR(100) NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE staging.member
 );
 
 -- changeset rat:0010-4
-CREATE TABLE staging.checkout
+CREATE TABLE IF NOT EXISTS staging.checkout
 (
     id                 SERIAL      NOT NULL,
     member_id          INTEGER     NOT NULL,
@@ -51,14 +51,14 @@ CREATE TABLE staging.checkout
 
 
 -- changeset rat:0010-5
-CREATE TABLE staging.tmp_mapping_member_id_uuid(
+CREATE TABLE IF NOT EXISTS staging.tmp_mapping_member_id_uuid(
     member_id INTEGER NOT NULL,
     uuid UUID NOT NULL,
     PRIMARY KEY (member_id)
 );
 
 -- changeset rat:0010-6
-CREATE TABLE staging.tmp_mapping_book_isbn13_uuid(
+CREATE TABLE IF NOT EXISTS staging.tmp_mapping_book_isbn13_uuid(
     isbn13 VARCHAR(17) NOT NULL,
     uuid UUID NOT NULL,
     PRIMARY KEY (isbn13)

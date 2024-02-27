@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS checkout
     modified_at             TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp,
     modified_by             VARCHAR(100) NOT NULL    DEFAULT current_user,
     CONSTRAINT pk_checkout PRIMARY KEY (id),
-    FOREIGN KEY (member_id) REFERENCES member (id),
-    FOREIGN KEY (instance_id) REFERENCES instance (id),
-    EXCLUDE USING gist (instance_id gist_uuid_ops WITH =, planned_checkout_period WITH &&)
+    CONSTRAINT fk_checkout_member FOREIGN KEY (member_id) REFERENCES member (id),
+    CONSTRAINT fk_checkout_instance FOREIGN KEY (instance_id) REFERENCES instance (id),
+    CONSTRAINT ec_checkouts_no_overlaps EXCLUDE USING gist (instance_id gist_uuid_ops WITH =, planned_checkout_period WITH &&)
 );
