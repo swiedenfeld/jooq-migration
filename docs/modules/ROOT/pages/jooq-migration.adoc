@@ -1,4 +1,5 @@
 = Developer-centric SQL Migrations
+
 :toc:
 
 Bei vielen Arten von Migrationsprojekten steht man vor der Herausforderung der Datenmigration.
